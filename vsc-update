@@ -1,0 +1,8 @@
+#!/bin/bash
+
+ssh vsc 'bash -s' <<'SSHCONN'
+    cd /user/leuven/318/vsc31826/MacaulayLab
+    git status
+    git fetch
+    git reset --hard origin/release
+SSHCONN

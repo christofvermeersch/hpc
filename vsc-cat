@@ -1,0 +1,8 @@
+#!/bin/bash
+
+filename="$1"
+
+ssh vsc filenamessh=$filename 'bash -s' <<'SSHCONN'
+  cd /user/leuven/318/vsc31826/Results
+  cat $filenamessh
+SSHCONN

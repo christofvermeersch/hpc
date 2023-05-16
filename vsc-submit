@@ -1,0 +1,92 @@
+#!/bin/bash
+
+cluster="wice"
+time="01:00:00"
+nodes="1"
+cpus="1"
+pmem="8gb"
+repeat=1
+
+while :; do
+    case $1 in
+	-m)
+ 		if [ "$2" ]; then
+            		cluster=$2
+            		shift
+          	else
+            		echo "Second argument missing!"
+          	fi
+        	;;
+	-t)
+ 		if [ "$2" ]; then
+            		time=$2
+            		shift
+          	else
+            		echo "Second argument missing!"
+          	fi
+        	;;
+        -n)
+          	if [ "$2" ]; then
+            		nodes=$2
+            		shift
+         		 else
+            	echo "Second argument missing!"
+         	fi
+        	;;
+        -c)
+          	if [ "$2" ]; then
+            		cpus=$2
+            		shift
+          	else
+            		echo "Second argument missing!"
+          	fi
+        	;;
+    	-p)
+	  	if [ "$2" ]; then
+	    		pmem=$2
+	    		shift
+	  	else
+	    	echo "Second argument missing!"
+	  	fi
+		;;
+    	-r)
+	  	if [ "$2" ]; then
+	    		repeat=$2
+	    		shift
+	  	else
+	    		echo "Second argument missing!"
+	  	fi
+		;;
+        *) break
+    esac
+    shift
+done
+
+file="$1"
+
+ssh vsc filessh=$file clusterssh=$cluster timessh=$time nodesssh=$nodes cpusssh=$cpus pmemssh=$pmem repeatssh=$repeat 'bash -s' <<'SSHCONN'
+    base=$(dirname $filessh)
+    cd /user/leuven/318/vsc31826/Results
+    touch matlabscript.sh
+    echo "#!/bin/bash" > matlabscript.sh
+    echo "" >> matlabscript.sh
+    echo "#SBATCH -A lp_largescalemacaulay" >> matlabscript.sh
+    echo "" >> matlabscript.sh
+    echo "#SBATCH --cluster="$clusterssh >> matlabscript.sh
+    echo "#SBATCH --time="$timessh >> matlabscript.sh
+    echo "#SBATCH --ntasks="$nodesssh >> matlabscript.sh
+    echo "#SBATCH --cpus-per-task="$cpusssh >> matlabscript.sh
+    echo "#SBATCH --mem-per-cpu="$pmemssh >> matlabscript.sh
+	if [[ $repeatssh -gt 1 ]]; then
+		actualrepeats="$(($repeatssh - 1))"
+		echo "#SBATCH --array=0-"$actualrepeats >> matlabscript.sh
+	fi
+    echo "" >> matlabscript.sh
+    echo "module purge" >> matlabscript.sh
+    echo "module load MATLAB/R2022b" >> matlabscript.sh
+    echo "" >> matlabscript.sh
+    echo "cd ~/MacaulayLab" >> matlabscript.sh
+    echo "" >> matlabscript.sh
+    echo "matlab -nojvm -nodisplay -r \"addpath(genpath(pwd)); run('"$filessh"'); exit;\"" >> matlabscript.sh
+	sbatch matlabscript.sh
+SSHCONN

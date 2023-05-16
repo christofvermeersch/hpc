@@ -1,0 +1,5 @@
+#!/bin/bash
+
+foldername="$1"
+
+scp -r vsc:Results $foldername
