@@ -66,12 +66,13 @@ file="$1"
 
 ssh vsc filessh=$file clusterssh=$cluster timessh=$time nodesssh=$nodes cpusssh=$cpus pmemssh=$pmem repeatssh=$repeat 'bash -s' <<'SSHCONN'
     base=$(dirname $filessh)
-    cd /user/leuven/318/vsc31826/Results
+    cd /user/leuven/318/vsc31826/Scripts
     touch matlabscript.sh
     echo "#!/bin/bash" > matlabscript.sh
     echo "" >> matlabscript.sh
     echo "#SBATCH -A lp_largescalemacaulay" >> matlabscript.sh
     echo "" >> matlabscript.sh
+    echo "#SBATCH --output=/user/leuven/318/vsc31826/Output/"$filessh"-%j.out" >> matlabscript.sh
     echo "#SBATCH --cluster="$clusterssh >> matlabscript.sh
     echo "#SBATCH --time="$timessh >> matlabscript.sh
     echo "#SBATCH --ntasks="$nodesssh >> matlabscript.sh
@@ -83,10 +84,11 @@ ssh vsc filessh=$file clusterssh=$cluster timessh=$time nodesssh=$nodes cpusssh=
 	fi
     echo "" >> matlabscript.sh
     echo "module purge" >> matlabscript.sh
+    echo "module load cluster/wice/oldhierarchy" >> matlabscript.sh
     echo "module load MATLAB/R2022b" >> matlabscript.sh
     echo "" >> matlabscript.sh
-    echo "cd ~/MacaulayLab" >> matlabscript.sh
+    echo "cd ../Output" >> matlabscript.sh
     echo "" >> matlabscript.sh
-    echo "matlab -nojvm -nodisplay -r \"addpath(genpath(pwd)); run('"$filessh"'); exit;\"" >> matlabscript.sh
+    echo "matlab -nojvm -nodisplay -r \"addpath(genpath('/user/leuven/318/vsc31826/')); run('"$filessh"'); exit;\"" >> matlabscript.sh
 	sbatch matlabscript.sh
 SSHCONN

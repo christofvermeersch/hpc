@@ -1,12 +1,5 @@
 #!/bin/bash
 
-if [ "$1" ]; then
-    jobname=$1
-    ssh vsc jobnamessh=$jobname 'bash -s' <<'SSHCONN'
-        sstat $jobnamessh
+ssh vsc 'bash -s' <<'SSHCONN'
+        squeue --cluster=wice
 SSHCONN
-else
-    ssh vsc 'bash -s' <<'SSHCONN'
-        squeue
-SSHCONN
-fi

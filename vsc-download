@@ -2,4 +2,4 @@
 
 foldername="$1"
 
-scp -r vsc:Results $foldername
+scp -r vsc:Output $foldername

@@ -3,5 +3,5 @@
 jobname="$1"
 
 ssh vsc jobnamessh=$jobname 'bash -s' <<'SSHCONN'
-  scancel $jobnamessh
+  scancel --cluster=wice $jobnamessh
 SSHCONN
